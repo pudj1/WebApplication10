@@ -61,21 +61,21 @@ namespace WebApplication10.Controllers
             }
         }
 
-        [HttpPost(Name = "Article"), MapToApiVersion("1")]
+        [HttpPost(Name = "Article")]
         public async Task<ActionResult<Article>> Post(Article article)
         {
             var createdArticle = await ArticleService.PostArticle(article);
             return Ok(createdArticle);
         }
 
-        [HttpPut(Name = "Article"), MapToApiVersion("1")]
+        [HttpPut(Name = "Article")]
         public async Task<ActionResult<Article>> Put(Guid id, Article article)
         {
             var updatedArticle = await ArticleService.UpdateArticle(id, article);
             return Ok(updatedArticle);
         }
 
-        [HttpDelete(Name = "Article"), MapToApiVersion("1")]
+        [HttpDelete(Name = "Article")]
         public async Task<ActionResult<bool>> Delete(Guid id)
         {
             var result = await ArticleService.DeleteArticle(id);
