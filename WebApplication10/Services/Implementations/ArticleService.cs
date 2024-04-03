@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication10.Models;
+using Microsoft.AspNetCore.Mvc;
+using ClosedXML.Excel;
 
 namespace WebApplication10.Services
 {
@@ -35,11 +37,41 @@ namespace WebApplication10.Services
             return result;
         }
 
-        public async Task<IEnumerable<Article>> GetAllArticles()
+        public async Task<int> GetV1()
         {
-            return _list;
+            return 123;
         }
 
+        public async Task<string> GetV2()
+        {
+            return "123";
+        }
+        public async Task<MemoryStream> GetV3()
+        {
+            var articles = _list;
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Articles");
+                worksheet.Cell(1, 1).Value = "Name";
+                worksheet.Cell(1, 2).Value = "Content";
+                worksheet.Cell(1, 3).Value = "Date";
+
+                int row = 2;
+                foreach (var article in articles)
+                {
+                    worksheet.Cell(row, 1).Value = article.Name;
+                    worksheet.Cell(row, 2).Value = article.Content;
+                    worksheet.Cell(row, 3).Value = article.Date.ToString();
+                    row++;
+                }
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream;
+                }
+            }
+        }
         public async Task<Article> PostArticle(Article article)
         {
             article.Id = Guid.Empty;

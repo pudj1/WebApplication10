@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Net;
 using WebApplication10.Models;
 using WebApplication10.Services;
@@ -22,43 +23,25 @@ namespace WebApplication10.Controllers
         }
 
         [HttpGet(Name ="Article"), MapToApiVersion("1")]
-        public IActionResult GetV1()
+        public async Task<ActionResult> GetV1()
         {
-            return Ok(123);
+            var GetV1 = await ArticleService.GetV1();
+            return Ok(GetV1);
         }
 
         [HttpGet(Name = "Article"), MapToApiVersion("2")]
-        public IActionResult GetV2()
+        public async Task<ActionResult> GetV2()
         {
-            return Ok("123");
+            var GetV2 = await ArticleService.GetV2();
+            return Ok(GetV2);
         }
 
         [HttpGet(Name = "Article"), MapToApiVersion("3")]
         public async Task<ActionResult> GetV3()
         {
-            var articles = await ArticleService.GetAllArticles();
-            using (var workbook = new XLWorkbook())
-            {
-                var worksheet = workbook.Worksheets.Add("Articles");
-                worksheet.Cell(1, 1).Value = "Name";
-                worksheet.Cell(1, 2).Value = "Content";
-                worksheet.Cell(1, 3).Value = "Date";
+            var stream = await ArticleService.GetV3();
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "articles.xlsx");
 
-                int row = 2;
-                foreach (var article in articles)
-                {
-                    worksheet.Cell(row, 1).Value = article.Name;
-                    worksheet.Cell(row, 2).Value = article.Content;
-                    worksheet.Cell(row, 3).Value = article.Date.ToString();
-                    row++;
-                }
-
-                using (var stream = new MemoryStream())
-                {
-                    workbook.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "articles.xlsx");
-                }
-            }
         }
 
         [HttpPost(Name = "Article")]
