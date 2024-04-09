@@ -53,28 +53,13 @@ if (app.Environment.IsDevelopment())
 app.MapHealthChecks("/api/health", new HealthCheckOptions()
 {
     Predicate = _ => true,
-    ResponseWriter = WriteResponse
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 app.UseHealthChecksUI(delegate (Options options)
 {
     options.UIPath = "/healthcheck-ui";
 
 });
-Task WriteResponse(HttpContext context, HealthReport result)
-{
-    context.Response.ContentType = "application/json";
-
-    var json = new JObject(
-        new JProperty("status", result.Status.ToString()),
-        new JProperty("results", new JObject(result.Entries.Select(pair =>
-            new JProperty(pair.Key, new JObject(
-                new JProperty("status", pair.Value.Status.ToString()),
-                new JProperty("description", pair.Value.Description),
-                new JProperty("data", new JObject(pair.Value.Data.Select(
-                    p => new JProperty(p.Key, p.Value))))))))));
-
-    return context.Response.WriteAsync(json.ToString());
-}
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
