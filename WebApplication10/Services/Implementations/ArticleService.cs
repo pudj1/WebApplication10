@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using WebApplication10.Models;
 using Microsoft.AspNetCore.Mvc;
 using ClosedXML.Excel;
+using Serilog;
 
 namespace WebApplication10.Services
 {
@@ -39,11 +40,24 @@ namespace WebApplication10.Services
 
         public async Task<int> GetV1()
         {
+            using var log = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            log.Information("Hello, Serilog!");
+            Exception ex = new DivideByZeroException();
+            log.Debug("Dividing");
+            log.Warning(ex, "Warning");
+            log.Error(ex, "Error");
+            log.Fatal(ex, "Fatal");
+            log.Information("Hello, {Name}!", _list[0].Name);
             return 123;
         }
 
         public async Task<string> GetV2()
         {
+            throw new NotImplementedException();
             return "123";
         }
         public async Task<MemoryStream> GetV3()

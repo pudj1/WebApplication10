@@ -1,8 +1,15 @@
 using WebApplication10.Services;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .Enrich.WithExceptionDetails()
+    .WriteTo.Console()
+    .CreateLogger();
+    
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -22,7 +29,7 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 builder.Services.AddMvc();
-
+builder.Services.AddSerilog();
 builder.Services.AddTransient<IArticleService, ArticleService>();
 builder.Services.AddTransient<ICommentService, CommentService>();
 builder.Services.AddTransient<ICommunityService, CommunityService>();
@@ -39,7 +46,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v3/swagger.json", "My API v3");
     });
 }
-
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
